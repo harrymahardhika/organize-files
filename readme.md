@@ -18,7 +18,7 @@ A simple Go CLI tool to rename files to snake_case and organize them into folder
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/file-organizer.git
+git clone https://github.com/harrymahardhika/organize-files
 cd file-organizer
 ````
 
