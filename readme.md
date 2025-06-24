@@ -1,6 +1,3 @@
-Got it! Here’s the updated `README.md` with your `setup.sh` script included:
-
-````markdown
 # File Organizer
 
 A simple Go CLI tool to rename files to snake_case and organize them into folders by file type.
