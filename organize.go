@@ -31,6 +31,17 @@ func toSnakeCase(name string) string {
 	return strings.ToLower(snake) + strings.ToLower(ext)
 }
 
+func toSnakeCaseDir(name string) string {
+	// Replace non-alphanumeric with underscores
+	reg := regexp.MustCompile(`[^\w]+`)
+	snake := reg.ReplaceAllString(name, "_")
+
+	// Remove leading/trailing underscores
+	snake = strings.Trim(snake, "_")
+
+	return strings.ToLower(snake)
+}
+
 func getFolderForExt(ext string) string {
 	ext = strings.TrimPrefix(strings.ToLower(ext), ".")
 	for folder, exts := range extensionMap {
@@ -60,6 +71,49 @@ func main() {
 		return
 	}
 
+	// First pass: rename directories to snake_case
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		oldName := entry.Name()
+		newName := toSnakeCaseDir(oldName)
+		
+		// Skip if already in snake_case
+		if oldName == newName {
+			continue
+		}
+
+		oldPath := filepath.Join(dir, oldName)
+		newPath := filepath.Join(dir, newName)
+
+		// Handle conflicts by appending _1, _2, etc.
+		counter := 1
+		baseName := newName
+		for fileExists(newPath) {
+			newName = fmt.Sprintf("%s_%d", baseName, counter)
+			newPath = filepath.Join(dir, newName)
+			counter++
+		}
+
+		err := os.Rename(oldPath, newPath)
+		if err != nil {
+			fmt.Println("Error renaming directory:", err)
+			continue
+		}
+
+		fmt.Printf("Renamed directory '%s' -> '%s'\n", oldName, newName)
+	}
+
+	// Reload directory entries after renaming directories
+	entries, err = os.ReadDir(dir)
+	if err != nil {
+		fmt.Println("Error reading directory:", err)
+		return
+	}
+
+	// Second pass: organize files
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
